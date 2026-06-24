@@ -21,7 +21,7 @@ function createGoal(){
 }
 
 function displayGoals(){
-    const container = document.getElementById("goalsContainer");
+    const container = document.getElementById("goalContainer");
     container.innerHTML = "";
     const goals = getGoals();
     goals.forEach(function(goal){

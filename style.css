@@ -1,0 +1,40 @@
+body{
+    font-family:'Times New Roman', Times, serif;
+    margin: 20px;
+    background: #fffcfc;
+
+}
+#goalContainer{
+    display: grid;
+    gap:10px;
+    max-width: 600px;
+    margin: auto;
+}
+h1{
+    text-align: center;
+}
+.create-box{
+    background: white;
+    padding: 16px;
+    border-radius: 11px;
+    max-width: 400px;
+    margin: auto;
+}
+
+input, textarea{
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
+}
+
+button{
+    margin: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+.widget{
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
