@@ -2,20 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Accountability Tracker</title>
+    <title>Bloom</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <h1>Habit Tracker</h1>
-    <div class="create-goal">
+<body class="dashboard">
+    <header class="topbar">
+        <div>
+            <h1>Bloom ⋆˙⟡</h1>
+        </div>
+    </header>
+    <div class="create-box">
         <h2>New Goal</h2>
         <input id="goalName" placeholder="Name">
         <textarea id="motivation" placeholder="Why are you doing this?"></textarea>
         <button id="createBtn">Create Goal</button>
     </div>
-    <hr>
-    <h2>My Goals</h2>
+    <hr class="divider">
+    <h2 class="section-title">My Goals</h2>
     <div id="goalContainer"></div>
+    <div id="goalOverlay" class="overlay hidden">
+        <div class="overlay-content">
+            <button id="closeOverlay" class="close-btn">Back</button>
+            <div id="goalContent"></div>
+        </div>
+    </div>
     <script src="js/app.js"></script>
 </body>
 </html>

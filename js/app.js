@@ -13,7 +13,7 @@ function createGoal(){
     if(!name) return;
     const motivation = document.getElementById("motivation").value;
     const goals = getGoals();
-    goals.push({id: Date.now().toString(), name, motivation, streak: 0, lastCompleted: null, notes:[]});
+    goals.push({id: Date.now().toString(), name: name, motivation: motivation, createdAt: getToday(), streak: 0, lastCompleted: null, notes:[], messages:[]});
     saveGoals(goals);
     document.getElementById("goalName").value="";
     document.getElementById("motivation").value="";
@@ -29,28 +29,61 @@ function displayGoals(){
         div.className = "widget";
         div.innerHTML = `
             <h3>${goal.name}</h3>
-            <p>Streak: ${goal.streak}</p>
+            <p>${goal.streak} day${goal.streak===1?"":"s"} streak</p>
+            <p class="preview-message">${goal.motivation?goal.motivation.slice(0,80)+(goal.motivation.length>80?"...":""):"no motivation yet."}</p>
             <button class="complete-btn" data-id="${goal.id}">Complete Today</button>
-            <button class="view-btn" data-id="${goal.id}">View</button>
         `;
+        div.addEventListener("click", function(event){
+            if(event.target.classList.contains("complete-btn")){
+                return;
+            }
+            openGoal(goal.id);
+        });
         container.appendChild(div);
     });
     addWidgetStuff();
 }
+
+
 function addWidgetStuff(){
     document.querySelectorAll(".complete-btn").forEach(function(btn){
         btn.addEventListener("click", function(){
             completeGoal(btn.dataset.id);
         });
     });
-    document.querySelectorAll(".view-btn").forEach(function(btn){
-        btn.addEventListener("click", function(){
-            openGoal(btn.dataset.id);
-        });
-    });
 }
+function renderGoal(goal){
+    const message = goal.messages.length>0?goal.messages[0]:"no messages yet.";
+    return`
+        <h1>${goal.name}</h1>
+        <p class="goal-motivation">${goal.motivation ||"no motivation yet."}</p>
+        <p class="created-date">Started on ${goal.createdAt}</p>
+        <hr>
+        <h3>Streak</h3>
+        <p>${goal.streak} day${goal.streak===1?"":"s"}</p>
+        <hr>
+        <h3>Past Messages</h3>
+        <p class="past-message">"${message}"</p>
+        <hr>
+        <h3>Notes</h3>
+        ${goal.notes.length?`<ul>${goal.notes.map(function(note){
+            return `<li>${note}</li>`;
+        }).join("")}</ul>`:"<p>no notes yet.</p>"}
+        <button class="overlay-complete-btn">Complete Today</button>`;
+}
+
 function openGoal(id){
-    window.location.href=`goal.html?id=${id}`;
+    const goals = getGoals();
+    const goal = goals.find(g=>g.id===id);
+    if(!goal) return;
+    const overlay = document.getElementById("goalOverlay");
+    const content = document.getElementById("goalContent");
+    content.innerHTML = renderGoal(goal);
+    overlay.classList.remove("hidden");
+    document.querySelector(".overlay-complete-btn").addEventListener("click", function(){
+        completeGoal(goal.id);
+        openGoal(goal.id);
+    });
 }
 function getToday(){
     return new Date().toISOString().split("T")[0];
@@ -76,4 +109,12 @@ function completeGoal(id){
     saveGoals(goals);
     displayGoals();
 }
+document.getElementById("closeOverlay").addEventListener("click", function(){
+    document.getElementById("goalOverlay").classList.add("hidden");
+});
+document.getElementById("goalOverlay").addEventListener("click",  function(event){
+    if(event.target.id==="goalOverlay"){
+        document.getElementById("goalOverlay").classList.add("hidden");
+    }
+});
 displayGoals();
