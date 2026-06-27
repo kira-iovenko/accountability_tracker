@@ -13,7 +13,7 @@ function createGoal(){
     if(!name) return;
     const motivation = document.getElementById("motivation").value;
     const goals = getGoals();
-    goals.push({id: Date.now().toString(), name: name, motivation: motivation, createdAt: getToday(), streak: 0, lastCompleted: null, notes:[], messages:[]});
+    goals.push({id: Date.now().toString(), name: name, emoji: "🌸", motivation: motivation, createdAt: getToday(), streak: 0, lastCompleted: null, completedDates: [],notes:[], messages:[]});
     saveGoals(goals);
     document.getElementById("goalName").value="";
     document.getElementById("motivation").value="";
@@ -28,7 +28,7 @@ function displayGoals(){
         const div = document.createElement("div");
         div.className = "widget";
         div.innerHTML = `
-            <h3>${goal.name}</h3>
+            <h3>${goal.emoji || "🌸"} ${goal.name}</h3>
             <p>${goal.streak} day${goal.streak===1?"":"s"} streak</p>
             <p class="preview-message">${goal.motivation?goal.motivation.slice(0,80)+(goal.motivation.length>80?"...":""):"no motivation yet."}</p>
             <button class="complete-btn" data-id="${goal.id}">Complete Today</button>
@@ -53,9 +53,11 @@ function addWidgetStuff(){
     });
 }
 function renderGoal(goal){
-    const message = goal.messages.length>0?goal.messages[0]:"no messages yet.";
+    const messagesHtml = goal.messages.length>0?goal.messages.map(function(message){
+        return `<li>${message}</li>`;
+    }).join(""):"<li>no messages yet.</li>";
     return`
-        <h1>${goal.name}</h1>
+        <h1>${goal.emoji || "🌸"} ${goal.name}</h1>
         <p class="goal-motivation">${goal.motivation ||"no motivation yet."}</p>
         <p class="created-date">Started on ${goal.createdAt}</p>
         <hr>
@@ -63,12 +65,17 @@ function renderGoal(goal){
         <p>${goal.streak} day${goal.streak===1?"":"s"}</p>
         <hr>
         <h3>Past Messages</h3>
-        <p class="past-message">"${message}"</p>
+        <ul class="message-list">${messagesHtml}</ul>
         <hr>
         <h3>Notes</h3>
         ${goal.notes.length?`<ul>${goal.notes.map(function(note){
             return `<li>${note}</li>`;
         }).join("")}</ul>`:"<p>no notes yet.</p>"}
+        <hr>
+        <div class="goal-actions">
+            <button id="addNoteBtn">+ Add Note</button>
+            <button id="addMessageBtn">+ Add Message</button>
+        </div>
         <button class="overlay-complete-btn">Complete Today</button>`;
 }
 
@@ -83,6 +90,12 @@ function openGoal(id){
     document.querySelector(".overlay-complete-btn").addEventListener("click", function(){
         completeGoal(goal.id);
         openGoal(goal.id);
+    });
+    document.getElementById("addNoteBtn").addEventListener("click", function(){
+        addNote(goal.id);
+    });
+    document.getElementById("addMessageBtn").addEventListener("click", function(){
+        addMessage(goal.id);
     });
 }
 function getToday(){
@@ -106,8 +119,30 @@ function completeGoal(id){
         goal.streak = 1;
     }
     goal.lastCompleted = today;
+    goal.completedDates.push(today);
     saveGoals(goals);
     displayGoals();
+}
+
+function addNote(id){
+    const text = prompt("Leave a note:");
+    if(!text)return;
+    const goals = getGoals();
+    const goal = goals.find(g=>g.id===id);
+    if(!goal)return;
+    goal.notes.push(text);
+    saveGoals(goals);
+    openGoal(id);
+}
+function addMessage(id){
+    const text = prompt("Write your future self a message:");
+    if(!text)return;
+    const goals = getGoals();
+    const goal = goals.find(g=>g.id===id);
+    if(!goal)return;
+    goal.messages.push(text);
+    saveGoals(goals);
+    openGoal(id);
 }
 document.getElementById("closeOverlay").addEventListener("click", function(){
     document.getElementById("goalOverlay").classList.add("hidden");
