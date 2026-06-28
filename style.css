@@ -123,3 +123,47 @@ button:hover{
     margin-bottom: 12px;
     cursor: pointer;
 }
+
+.calendar{
+    margin: 20px 0;
+}
+
+.calendar-head{
+    text-align: center;
+    font-weight: bold;
+    color: #777;
+    padding: 6px;
+}
+.calendar h3{
+    margin-bottom: 12px;
+}
+.calendar-grid{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+.calendar-day{
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background: #f4f4f4;
+    transition: 0.2s;
+}
+.calendar-day.completed{
+     background: #c8b6ff;
+     color: white;
+}
+.overlay-complete-btn{
+    width: 100%;
+    margin-top: 16px;
+}
+.delete-btn{
+    width:100%;
+    margin-top:10px;
+    background: #ff7a7a;
+}
+.delete-btn:hover{
+    background: #e05d5d;
+}

@@ -1,5 +1,13 @@
 function getGoals(){
     return JSON.parse(localStorage.getItem("goals")) || [];
+    goals.forEach(function(goal){
+        goal.completedDates ??=[];
+        goal.notes??=[];
+        goal.messages??=[];
+        goal.streak??=0;
+        goal.lastCompleted??=null;
+    });
+    return goals;
 }
 
 function saveGoals(goals){
@@ -9,7 +17,7 @@ function saveGoals(goals){
 document.getElementById("createBtn").addEventListener("click", createGoal);
 
 function createGoal(){
-    const name = document.getElementById("goalName").value;
+    const name = document.getElementById("goalName").value.trim();
     if(!name) return;
     const motivation = document.getElementById("motivation").value;
     const goals = getGoals();
@@ -47,12 +55,40 @@ function displayGoals(){
 
 function addWidgetStuff(){
     document.querySelectorAll(".complete-btn").forEach(function(btn){
-        btn.addEventListener("click", function(){
-            completeGoal(btn.dataset.id);
-        });
+        btn.onclick = function(event){
+            event.stopPropagation();
+            completeGoal(this.dataset.id);
+        };
     });
 }
+function renderCalendar(goal){
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const firstD = new Date(year, month, 1);
+    const monthDays = new Date(year, month+1, 0).getDate();
+    let html = `<div class="calendar"><h3>${now.toLocaleString("default",{month: "long"})} ${year}</h3><div class="calendar-grid">`;
+    const weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+    weekDays.forEach(function(day){
+        html += `<div class="calendar-head">${day}</div>`;
+    });
+    const startDay = (firstD.getDay()+6)%7;
+    for(let i=0; i<startDay; i++){
+        html +=`<div></div>`;
+    }
+    for(let d=1; d<=monthDays;d++){
+        const str = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+        const complete = (goal.completedDates || []).includes(str);
+        html += `<div class="calendar-day ${complete?"completed":""}">${d}</div>`;
+    }
+    html += `</div></div>`;
+    return html;
+}
+
 function renderGoal(goal){
+    goal.notes ??= [];
+    goal.messages ??= [];
+    goal.completedDates ??= [];
     const messagesHtml = goal.messages.length>0?goal.messages.map(function(message){
         return `<li>${message}</li>`;
     }).join(""):"<li>no messages yet.</li>";
@@ -63,6 +99,8 @@ function renderGoal(goal){
         <hr>
         <h3>Streak</h3>
         <p>${goal.streak} day${goal.streak===1?"":"s"}</p>
+        <hr>
+        ${renderCalendar(goal)}
         <hr>
         <h3>Past Messages</h3>
         <ul class="message-list">${messagesHtml}</ul>
@@ -76,8 +114,10 @@ function renderGoal(goal){
             <button id="addNoteBtn">+ Add Note</button>
             <button id="addMessageBtn">+ Add Message</button>
         </div>
-        <button class="overlay-complete-btn">Complete Today</button>`;
+        <button class="overlay-complete-btn">Complete Today</button>
+        <button id="deleteGoalBtn" class="delete-btn">Delete Goal</button>`;
 }
+
 
 function openGoal(id){
     const goals = getGoals();
@@ -97,14 +137,20 @@ function openGoal(id){
     document.getElementById("addMessageBtn").addEventListener("click", function(){
         addMessage(goal.id);
     });
+    document.getElementById("deleteGoalBtn").addEventListener("click", function(){
+        if(confirm("Delete this goal?")){
+            deleteGoal(goal.id);
+        }
+    })
 }
 function getToday(){
-    return new Date().toISOString().split("T")[0];
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 function getYesterday(){
     const d = new Date();
     d.setDate(d.getDate()-1);
-    return d.toISOString().split("T")[0];
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function completeGoal(id){
@@ -119,7 +165,10 @@ function completeGoal(id){
         goal.streak = 1;
     }
     goal.lastCompleted = today;
-    goal.completedDates.push(today);
+    goal.completedDates ??=[];
+    if(!goal.completedDates.includes(today)){
+        goal.completedDates.push(today);
+    }
     saveGoals(goals);
     displayGoals();
 }
@@ -152,4 +201,12 @@ document.getElementById("goalOverlay").addEventListener("click",  function(event
         document.getElementById("goalOverlay").classList.add("hidden");
     }
 });
+
+function deleteGoal(id){
+    const goals = getGoals().filter(g=>g.id !== id);
+    saveGoals(goals);
+    document.getElementById("goalOverlay").classList.add("hidden");
+    displayGoals();
+}
+
 displayGoals();
