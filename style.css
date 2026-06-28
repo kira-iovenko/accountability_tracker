@@ -167,3 +167,28 @@ button:hover{
 .delete-btn:hover{
     background: #e05d5d;
 }
+
+.edit-modal{
+    margin-top: 24px;
+    padding: 20px;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 18px;
+}
+.edit-buttons{
+    display:flex;
+    gap:10px;
+}
+.edit-modal h2{
+    margin-top: 0;
+}
+.edit-modal input, .edit-modal textarea{
+    margin-bottom: 12px;
+}
+#cancelEditBtn{
+    background: #ddd;
+    color: #282828;
+}
+#cancelEditBtn:hover{
+    background: #cfcfcf;
+}

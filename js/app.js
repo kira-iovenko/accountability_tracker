@@ -1,5 +1,5 @@
 function getGoals(){
-    return JSON.parse(localStorage.getItem("goals")) || [];
+    const goals = JSON.parse(localStorage.getItem("goals")) || [];
     goals.forEach(function(goal){
         goal.completedDates ??=[];
         goal.notes??=[];
@@ -20,9 +20,11 @@ function createGoal(){
     const name = document.getElementById("goalName").value.trim();
     if(!name) return;
     const motivation = document.getElementById("motivation").value;
+    const emoji = document.getElementById("goalEmoji").value.trim()|| "🌸";
     const goals = getGoals();
-    goals.push({id: Date.now().toString(), name: name, emoji: "🌸", motivation: motivation, createdAt: getToday(), streak: 0, lastCompleted: null, completedDates: [],notes:[], messages:[]});
+    goals.push({id: Date.now().toString(), name: name, emoji: emoji, motivation: motivation, createdAt: getToday(), streak: 0, lastCompleted: null, completedDates: [],notes:[], messages:[]});
     saveGoals(goals);
+    document.getElementById("goalEmoji").value = "";
     document.getElementById("goalName").value="";
     document.getElementById("motivation").value="";
     displayGoals();
@@ -113,6 +115,7 @@ function renderGoal(goal){
         <div class="goal-actions">
             <button id="addNoteBtn">+ Add Note</button>
             <button id="addMessageBtn">+ Add Message</button>
+            <button id="editGoalBtn">Edit</button>
         </div>
         <button class="overlay-complete-btn">Complete Today</button>
         <button id="deleteGoalBtn" class="delete-btn">Delete Goal</button>`;
@@ -137,12 +140,49 @@ function openGoal(id){
     document.getElementById("addMessageBtn").addEventListener("click", function(){
         addMessage(goal.id);
     });
+    document.getElementById("editGoalBtn").onclick = function(){
+        openEditModal(goal);
+    };
     document.getElementById("deleteGoalBtn").addEventListener("click", function(){
         if(confirm("Delete this goal?")){
             deleteGoal(goal.id);
         }
     })
 }
+
+function openEditModal(goal){
+    document.getElementById("editEmoji").value = goal.emoji || "🌸";
+    document.getElementById("editName").value = goal.name;
+    document.getElementById("editMotivation").value = goal.motivation || "";
+    document.getElementById("editArea").classList.remove("hidden");
+    document.getElementById("saveEditBtn").onclick = function(){
+        saveGoalEdits(goal.id);
+    };
+    document.getElementById("cancelEditBtn").onclick = closeEditModal;
+    document.getElementById("closeEditModal").onclick = closeEditModal;
+}
+function closeEditModal(){
+    document.getElementById("editArea").classList.add("hidden");
+}
+function saveGoalEdits(id){
+    const goals = getGoals();
+    const goal = goals.find(function(g){
+        return g.id===id;
+    });
+    if(!goal) return;
+    const emoji = document.getElementById("editEmoji").value.trim();
+    const name = document.getElementById("editName").value.trim();
+    const motivation = document.getElementById("editMotivation").value.trim();
+    if(!name) return;
+    goal.name = name;
+    goal.emoji = emoji ||"🌸";
+    goal.motivation = motivation;
+    saveGoals(goals);
+    displayGoals();
+    closeEditModal();
+    openGoal(id);
+}
+
 function getToday(){
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2, "0")}`;
