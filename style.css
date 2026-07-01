@@ -4,8 +4,11 @@
 body{
     font-family:Inter, Arial, sans-serif;
     margin: 0;
-    background: #F8F7F4;
+    min-height: 100vh;
+    background-color: #f8f7f4;
     color: #2E2E2E;
+    background-image: linear-gradient(rgba(200,182,255,0.15) 3px, transparent 3px), linear-gradient(90deg, rgba(200, 182, 255, 0.15) 3px, transparent 3px);
+    background-size: 40px 40px;
 }
 .topbar{
     display: flex;
@@ -229,7 +232,13 @@ button:hover{
     color: #888;
     font-size: 18px;
 }
-
+.centered-stuff{
+    max-width: 960px;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 36px;
+    background: white;
+}
 
 .modal-overlay{
     position: fixed;

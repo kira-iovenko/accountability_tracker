@@ -6,25 +6,27 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="dashboard">
-    <header class="topbar">
-        <div>
-            <h1>Bloom ⋆˙⟡</h1>
+    <div class="centered-stuff">
+        <header class="topbar">
+            <div>
+                <h1>Bloom ⋆˙⟡</h1>
+            </div>
+        </header>
+        <div class="create-box">
+            <h2>New Goal</h2>
+            <input id="goalEmoji" maxlength="2" placeholder="Emoji(s)">
+            <input id="goalName" placeholder="Name">
+            <textarea id="motivation" placeholder="Why are you doing this?"></textarea>
+            <button id="createBtn">Create Goal</button>
         </div>
-    </header>
-    <div class="create-box">
-        <h2>New Goal</h2>
-        <input id="goalEmoji" maxlength="2" placeholder="Emoji(s)">
-        <input id="goalName" placeholder="Name">
-        <textarea id="motivation" placeholder="Why are you doing this?"></textarea>
-        <button id="createBtn">Create Goal</button>
-    </div>
-    <hr class="divider">
-    <h2 class="section-title">My Goals</h2>
-    <div id="goalContainer"></div>
-    <div id="goalOverlay" class="goal-page hidden">
-        <div class="goal-page-content">
-            <button id="closeOverlay" class="close-btn">Dashboard</button>
-            <div id="goalContent"></div>
+        <hr class="divider">
+        <h2 class="section-title">My Goals</h2>
+        <div id="goalContainer"></div>
+        <div id="goalOverlay" class="goal-page hidden">
+            <div class="goal-page-content">
+                <button id="closeOverlay" class="close-btn">Dashboard</button>
+                <div id="goalContent"></div>
+            </div>
         </div>
     </div>
     <div id="editArea" class="modal-overlay hidden">
