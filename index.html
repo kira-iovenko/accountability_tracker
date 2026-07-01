@@ -21,22 +21,21 @@
     <hr class="divider">
     <h2 class="section-title">My Goals</h2>
     <div id="goalContainer"></div>
-    <div id="goalOverlay" class="overlay hidden">
-        <div class="overlay-content">
-            <button id="closeOverlay" class="close-btn">Back</button>
+    <div id="goalOverlay" class="goal-page hidden">
+        <div class="goal-page-content">
+            <button id="closeOverlay" class="close-btn">Dashboard</button>
             <div id="goalContent"></div>
-            <div id="editArea" class="overlay hidden">
-                <div class="overlay-content edit-modal-content">
-                    <button id="closeEditModal" class="close-btn">Close</button>
-                    <h2>Edit</h2>
-                    <input id="editEmoji" maxlength="2" placeholder="🌸">
-                    <input id="editName" placeholder="Goal name">
-                    <textarea id="editMotivation" placeholder="Why are you doing this?"></textarea>
-                    <div class="edit-buttons">
-                        <button id="saveEditBtn">Save Changes</button>
-                        <button id="cancelEditBtn">Cancel</button>
-                    </div>
-                </div>
+        </div>
+    </div>
+    <div id="editArea" class="modal-overlay hidden">
+        <div class="edit-modal">
+            <h2>Edit</h2>
+            <input id="editEmoji" maxlength="2" placeholder="🌸">
+            <input id="editName" placeholder="Goal name">
+            <textarea id="editMotivation" placeholder="Why are you doing this?"></textarea>
+            <div class="edit-buttons">
+                <button type="button" id="saveEditBtn">Save Changes</button>
+                <button type="button" id="cancelEditBtn">Cancel</button>
             </div>
         </div>
     </div>

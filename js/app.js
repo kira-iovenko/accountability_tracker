@@ -1,3 +1,8 @@
+const editEmoji = document.getElementById("editEmoji");
+const editName = document.getElementById("editName");
+const editOverlay = document.getElementById("editArea");
+const editMotivation = document.getElementById("editMotivation");
+const saveEditBtn = document.getElementById("saveEditBtn");
 function getGoals(){
     const goals = JSON.parse(localStorage.getItem("goals")) || [];
     goals.forEach(function(goal){
@@ -95,12 +100,17 @@ function renderGoal(goal){
         return `<li>${message}</li>`;
     }).join(""):"<li>no messages yet.</li>";
     return`
-        <h1>${goal.emoji || "🌸"} ${goal.name}</h1>
-        <p class="goal-motivation">${goal.motivation ||"no motivation yet."}</p>
+        <div class="goal-main">
+            <div class="goal-emoji">${goal.emoji || "🌸"}</div>
+            <h1 class="goal-name">${goal.name}</h1>
+            <p class="goal-motivation">${goal.motivation||"no motivation yet."}</p>
+        </div>
         <p class="created-date">Started on ${goal.createdAt}</p>
         <hr>
-        <h3>Streak</h3>
-        <p>${goal.streak} day${goal.streak===1?"":"s"}</p>
+        <div class="streak-card">
+            <span class="streak-num">${goal.streak}</span>
+            <span class="streak-label">day${goal.streak===1?"":"s"}</span>
+        </div>
         <hr>
         ${renderCalendar(goal)}
         <hr>
@@ -120,7 +130,6 @@ function renderGoal(goal){
         <button class="overlay-complete-btn">Complete Today</button>
         <button id="deleteGoalBtn" class="delete-btn">Delete Goal</button>`;
 }
-
 
 function openGoal(id){
     const goals = getGoals();
@@ -151,19 +160,18 @@ function openGoal(id){
 }
 
 function openEditModal(goal){
-    document.getElementById("editEmoji").value = goal.emoji || "🌸";
-    document.getElementById("editName").value = goal.name;
-    document.getElementById("editMotivation").value = goal.motivation || "";
-    document.getElementById("editArea").classList.remove("hidden");
-    document.getElementById("saveEditBtn").onclick = function(){
+    editEmoji.value = goal.emoji || "🌸";
+    editName.value = goal.name;
+    editMotivation.value = goal.motivation || "";
+    editOverlay.classList.remove("hidden");
+    saveEditBtn.onclick = function(){
         saveGoalEdits(goal.id);
     };
-    document.getElementById("cancelEditBtn").onclick = closeEditModal;
-    document.getElementById("closeEditModal").onclick = closeEditModal;
 }
 function closeEditModal(){
-    document.getElementById("editArea").classList.add("hidden");
+    editOverlay.classList.add("hidden");
 }
+
 function saveGoalEdits(id){
     const goals = getGoals();
     const goal = goals.find(function(g){
@@ -241,6 +249,13 @@ document.getElementById("goalOverlay").addEventListener("click",  function(event
         document.getElementById("goalOverlay").classList.add("hidden");
     }
 });
+document.getElementById("cancelEditBtn").onclick = closeEditModal;
+
+editOverlay.onclick = function(event){
+    if(!event.target.closest(".edit-modal")){
+        closeEditModal();
+    }
+};
 
 function deleteGoal(id){
     const goals = getGoals().filter(g=>g.id !== id);
