@@ -4,13 +4,19 @@ const editOverlay = document.getElementById("editArea");
 const editMotivation = document.getElementById("editMotivation");
 const saveEditBtn = document.getElementById("saveEditBtn");
 function getGoals(){
-    const goals = JSON.parse(localStorage.getItem("goals")) || [];
+    let goals;
+    try{
+        goals = JSON.parse(localStorage.getItem("goals")) || [];
+    } catch{
+        goals = [];
+    }
     goals.forEach(function(goal){
         goal.completedDates ??=[];
         goal.notes??=[];
         goal.messages??=[];
         goal.streak??=0;
         goal.lastCompleted??=null;
+        goal.createdAt ??= getToday();
     });
     return goals;
 }
@@ -27,12 +33,21 @@ function createGoal(){
     const motivation = document.getElementById("motivation").value;
     const emoji = document.getElementById("goalEmoji").value.trim()|| "🌸";
     const goals = getGoals();
-    goals.push({id: Date.now().toString(), name: name, emoji: emoji, motivation: motivation, createdAt: getToday(), streak: 0, lastCompleted: null, completedDates: [],notes:[], messages:[]});
+    goals.push({id: Date.now().toString(), name, emoji, motivation, createdAt: getToday(), streak: 0, lastCompleted: null, completedDates: [],notes:[], messages:[]});
     saveGoals(goals);
     document.getElementById("goalEmoji").value = "";
     document.getElementById("goalName").value="";
     document.getElementById("motivation").value="";
     displayGoals();
+}
+
+function renderGoalCard(goal){
+    return `
+        <h3>${goal.emoji || "🌸"} ${goal.name}</h3>
+        <p>${goal.streak} day${goal.streak===1?"":"s"} streak</p>
+        <p class="preview-message">${goal.motivation?goal.motivation.slice(0,80)+(goal.motivation.length>80 ? "...":""):"no motivation yet."}</p>
+        <button class="complete-btn" data-id="${goal.id}">Complete Today</button>
+    `
 }
 
 function displayGoals(){
@@ -42,12 +57,7 @@ function displayGoals(){
     goals.forEach(function(goal){
         const div = document.createElement("div");
         div.className = "widget";
-        div.innerHTML = `
-            <h3>${goal.emoji || "🌸"} ${goal.name}</h3>
-            <p>${goal.streak} day${goal.streak===1?"":"s"} streak</p>
-            <p class="preview-message">${goal.motivation?goal.motivation.slice(0,80)+(goal.motivation.length>80?"...":""):"no motivation yet."}</p>
-            <button class="complete-btn" data-id="${goal.id}">Complete Today</button>
-        `;
+        div.innerHTML = renderGoalCard(goal);
         div.addEventListener("click", function(event){
             if(event.target.classList.contains("complete-btn")){
                 return;
@@ -92,43 +102,89 @@ function renderCalendar(goal){
     return html;
 }
 
+function renderGoalHeader(goal){
+    return `
+        <div class="goal-main">
+            <div class="goal-emoji">${goal.emoji || "🌸"}</div>
+            <h1 class="goal-name">${goal.name}</h1>
+            <p class="goal-motivation">${escapeHtml(goal.motivation)|| "no motivation yet."}</p>
+        </div>
+        <p class="created-date">Started on ${goal.createdAt}</p>
+    `;
+}
+function renderStreakCard(goal){
+    return `
+        <div class="streak-card">
+            <span class="streak-num">${goal.streak}</span>
+            <span class="streak-label">day${goal.streak ===1?"" : "s"}</span>
+        </div>
+    `;
+}
+function renderMessagesArea(goal){
+    const messagesHtml = goal.messages.length>0?goal.messages.map(function(message){
+        return `<li>${escapeHtml(message)}</li>`;
+    }).join(""):"<li>no messages yet.</li>";
+    return `
+        <h3>Past Messages</h3> 
+        <ul class="message-list">
+            ${messagesHtml}
+        </ul>   
+    `;
+}
+
+function renderNotesArea(goal){
+    return `
+        <h3>Notes</h3>
+        ${goal.notes.length?`<ul>${goal.notes.map(function(note){return `<li>${escapeHtml(note)}</li>`;}).join("")}</ul>`:"<p>no notes yet.</p>"}
+    `;
+}
+
+function renderActions(){
+    return `<div class="goal-actions"><button id="addNoteBtn">+ Add Note</button><button id="addMessageBtn">+ Add Message</button><button id="editGoalBtn">Edit</button></div>
+    <button class="overlay-complete-btn">Complete Today</button>
+    <button id="deleteGoalBtn" class="delete-btn">Delete Goal</button>
+    `;
+}
+
 function renderGoal(goal){
     goal.notes ??= [];
     goal.messages ??= [];
     goal.completedDates ??= [];
-    const messagesHtml = goal.messages.length>0?goal.messages.map(function(message){
-        return `<li>${message}</li>`;
-    }).join(""):"<li>no messages yet.</li>";
     return`
-        <div class="goal-main">
-            <div class="goal-emoji">${goal.emoji || "🌸"}</div>
-            <h1 class="goal-name">${goal.name}</h1>
-            <p class="goal-motivation">${goal.motivation||"no motivation yet."}</p>
-        </div>
-        <p class="created-date">Started on ${goal.createdAt}</p>
+        ${renderGoalHeader(goal)}
         <hr>
-        <div class="streak-card">
-            <span class="streak-num">${goal.streak}</span>
-            <span class="streak-label">day${goal.streak===1?"":"s"}</span>
-        </div>
+        ${renderStreakCard(goal)}
         <hr>
         ${renderCalendar(goal)}
         <hr>
-        <h3>Past Messages</h3>
-        <ul class="message-list">${messagesHtml}</ul>
+        ${renderMessagesArea(goal)}
         <hr>
-        <h3>Notes</h3>
-        ${goal.notes.length?`<ul>${goal.notes.map(function(note){
-            return `<li>${note}</li>`;
-        }).join("")}</ul>`:"<p>no notes yet.</p>"}
+        ${renderNotesArea(goal)}
         <hr>
-        <div class="goal-actions">
-            <button id="addNoteBtn">+ Add Note</button>
-            <button id="addMessageBtn">+ Add Message</button>
-            <button id="editGoalBtn">Edit</button>
-        </div>
-        <button class="overlay-complete-btn">Complete Today</button>
-        <button id="deleteGoalBtn" class="delete-btn">Delete Goal</button>`;
+        ${renderActions()}
+    `;
+}
+
+function attachGoalEvents(id){
+    document.querySelector(".overlay-complete-btn").onclick = function(){
+        completeGoal(id, false);
+        openGoal(id);
+    };
+    document.getElementById("addNoteBtn").onclick = function(){
+        addNote(id);
+    };
+    document.getElementById("addMessageBtn").onclick = function(){
+        addMessage(id);
+    };
+    document.getElementById("editGoalBtn").onclick = function(){
+        const goal = getGoals().find(g=>g.id === id);
+        openEditModal(goal);
+    };
+    document.getElementById("deleteGoalBtn").onclick = function(){
+        if(confirm("Delete this goal?")){
+            deleteGoal(id);
+        }
+    };
 }
 
 function openGoal(id){
@@ -138,25 +194,8 @@ function openGoal(id){
     const overlay = document.getElementById("goalOverlay");
     const content = document.getElementById("goalContent");
     content.innerHTML = renderGoal(goal);
+    attachGoalEvents(goal.id);
     overlay.classList.remove("hidden");
-    document.querySelector(".overlay-complete-btn").addEventListener("click", function(){
-        completeGoal(goal.id);
-        openGoal(goal.id);
-    });
-    document.getElementById("addNoteBtn").addEventListener("click", function(){
-        addNote(goal.id);
-    });
-    document.getElementById("addMessageBtn").addEventListener("click", function(){
-        addMessage(goal.id);
-    });
-    document.getElementById("editGoalBtn").onclick = function(){
-        openEditModal(goal);
-    };
-    document.getElementById("deleteGoalBtn").addEventListener("click", function(){
-        if(confirm("Delete this goal?")){
-            deleteGoal(goal.id);
-        }
-    })
 }
 
 function openEditModal(goal){
@@ -201,7 +240,7 @@ function getYesterday(){
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function completeGoal(id){
+function completeGoal(id, refresh=true){
     const goals = getGoals();
     const today = getToday();
     const goal = goals.find(g=>g.id === id);
@@ -218,7 +257,15 @@ function completeGoal(id){
         goal.completedDates.push(today);
     }
     saveGoals(goals);
-    displayGoals();
+    if(refresh){
+        displayGoals();
+    }
+}
+
+function escapeHtml(text){
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function addNote(id){
