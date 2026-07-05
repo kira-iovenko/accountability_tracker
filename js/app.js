@@ -14,6 +14,12 @@ function getGoals(){
         goal.completedDates ??=[];
         goal.notes??=[];
         goal.messages??=[];
+        goal.notes = goal.notes.map(function(note){
+            return typeof note === "string"?{id: Date.now().toString() + Math.random(), text: note, createdAt: goal.createdAt}:note;
+        });
+        goal.messages = goal.messages.map(function(message){
+            return typeof message === "string"?{id: Date.now().toString() + Math.random(), text: message, createdAt: goal.createdAt}: message;
+        });
         goal.streak??=0;
         goal.lastCompleted??=null;
         goal.createdAt ??= getToday();
@@ -121,21 +127,60 @@ function renderStreakCard(goal){
     `;
 }
 function renderMessagesArea(goal){
-    const messagesHtml = goal.messages.length>0?goal.messages.map(function(message){
-        return `<li>${escapeHtml(message)}</li>`;
-    }).join(""):"<li>no messages yet.</li>";
+    if(!goal.messages.length){
+        return `
+            <h3>Past Messages</h3>
+            <ul class="message-list">
+                <li>no messages yet.</li>
+            </ul>
+        `;
+    }
     return `
-        <h3>Past Messages</h3> 
+        <h3>Past Messages</h3>
         <ul class="message-list">
-            ${messagesHtml}
-        </ul>   
+            ${goal.messages.map(function(message){
+                return `
+                    <li class="item-row">
+                        <span>${escapeHtml(message.text)}</span>
+                        <div class="more-actions-menu">
+                            <button class="menu-btn" data-type="message" data-goal="${goal.id}" data-id="${message.id}">⋮</button>
+                            <div class="menu-dropdown hidden">
+                                <button class="edit-message-btn" data-goal="${goal.id}" data-message="${message.id}">Edit</button>
+                                <button class="delete-message-btn" data-goal="${goal.id}" data-message="${message.id}">Delete</button>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }).join("")}
+        </ul>
     `;
 }
 
 function renderNotesArea(goal){
+    if(!goal.notes.length){
+        return `
+            <h3>Notes</h3>
+            <p>no notes yet.</p>
+        `;
+    }
     return `
         <h3>Notes</h3>
-        ${goal.notes.length?`<ul>${goal.notes.map(function(note){return `<li>${escapeHtml(note)}</li>`;}).join("")}</ul>`:"<p>no notes yet.</p>"}
+        <ul class="note-list">
+            ${goal.notes.map(function(note){
+                return `
+                    <li class="item-row">
+                        <span>${escapeHtml(note.text)}</span>
+                        <div class="more-actions-menu">
+                            <button class="menu-btn" data-type="note" data-goal="${goal.id}" data-id="${note.id}">⋮</button>
+                            <div class="menu-dropdown hidden">
+                                <button class="edit-note-btn" data-goal="${goal.id}" data-note="${note.id}">Edit</button>
+                                <button class="delete-note-btn" data-goal="${goal.id}" data-note="${note.id}">Delete</button>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }).join("")}
+        </ul>
     `;
 }
 
@@ -185,6 +230,37 @@ function attachGoalEvents(id){
             deleteGoal(id);
         }
     };
+    document.querySelectorAll(".edit-note-btn").forEach(function(btn){
+        btn.onclick = function(){
+            editNote(this.dataset.goal, this.dataset.note);
+        };
+    });
+    document.querySelectorAll(".delete-note-btn").forEach(function(btn){
+        btn.onclick = function(){
+            deleteNote(this.dataset.goal, this.dataset.note);
+        };
+    });
+    document.querySelectorAll(".edit-message-btn").forEach(function(btn){
+        btn.onclick = function(){
+            editMessage(this.dataset.goal, this.dataset.message);
+        };
+    });
+    document.querySelectorAll(".delete-message-btn").forEach(function(btn){
+        btn.onclick = function(){
+            deleteMessage(this.dataset.goal, this.dataset.message);
+        };
+    });
+    document.querySelectorAll(".menu-btn").forEach(function(btn){
+        btn.onclick = function(event){
+            event.stopPropagation();
+            document.querySelectorAll(".menu-dropdown").forEach(function(menu){
+                if(menu != btn.nextElementSibling){
+                    menu.classList.add("hidden");
+                }
+            });
+            btn.nextElementSibling.classList.toggle("hidden");
+        };
+    });
 }
 
 function openGoal(id){
@@ -274,7 +350,9 @@ function addNote(id){
     const goals = getGoals();
     const goal = goals.find(g=>g.id===id);
     if(!goal)return;
-    goal.notes.push(text);
+    goal.notes.push({
+        id: Date.now().toString(), text, createdAt: getToday()
+    });
     saveGoals(goals);
     openGoal(id);
 }
@@ -284,7 +362,9 @@ function addMessage(id){
     const goals = getGoals();
     const goal = goals.find(g=>g.id===id);
     if(!goal)return;
-    goal.messages.push(text);
+    goal.messages.push({
+        id: Date.now().toString(), text, createdAt: getToday()
+    });
     saveGoals(goals);
     openGoal(id);
 }
@@ -311,4 +391,49 @@ function deleteGoal(id){
     displayGoals();
 }
 
+function editNote(goalId, noteId){
+    const goals = getGoals();
+    const goal = goals.find(g=>g.id===goalId);
+    const note = goal.notes.find(n=>n.id===noteId);
+    const text = prompt("Edit note:", note.text);
+    if(text === null || !text.trim()) return;
+    note.text = text.trim();
+    saveGoals(goals);
+    openGoal(goalId);
+}
+
+function deleteNote(goalId, noteId){
+    if(!confirm("Delete this note?")) return;
+    const goals = getGoals();
+    const goal = goals.find(g=>g.id===goalId);
+    goal.notes = goal.notes.filter(n=>n.id !== noteId);
+    saveGoals(goals);
+    openGoal(goalId); 
+}
+
+function editMessage(goalId, messageId){
+    const goals = getGoals();
+    const goal = goals.find(g=>g.id===goalId);
+    const message = goal.messages.find(m=>m.id===messageId);
+    const text = prompt("Edit message:", message.text);
+    if(text === null || !text.trim()) return;
+    message.text = text.trim();
+    saveGoals(goals);
+    openGoal(goalId);
+}
+
+function deleteMessage(goalId, messageId){
+    if(!confirm("Delete this message?")) return;
+    const goals = getGoals();
+    const goal = goals.find(g=>g.id === goalId);
+    goal.messages = goal.messages.filter(m=>m.id!==messageId);
+    saveGoals(goals);
+    openGoal(goalId);
+}
+
+document.addEventListener("click", function(){
+    document.querySelectorAll(".menu-dropdown").forEach(function(menu){
+        menu.classList.add("hidden");
+    });
+});
 displayGoals();

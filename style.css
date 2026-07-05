@@ -251,6 +251,91 @@ button:hover{
     align-items: center;
 }
 
+.more-actions-menu{
+    position: relative;
+}
+
+.menu-btn{
+    background: transparent;
+    color: #777;
+    font-size: 18px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    line-height: 1;
+}
+
+.menu-btn:hover{
+    background: #f3f3f3;
+    transform: none;
+}
+
+.item-actions{
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.item-row:hover .item-actions{
+    opacity: 1;
+}
+.small-btn{
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.small-delete-btn{
+    background: #ff7a7a;
+}
+.small-delete-btn:hover{
+    background: #e05d5d;
+}
+
+.note-list, .message-list{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.item-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f3f3;
+    gap: 12px;
+}
+
+.menu-dropdown{
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: white;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 120px;
+    z-index: 1000;
+}
+
+.menu-dropdown button{
+    background: transparent;
+    color: #333;
+    text-align: left;
+    border-radius: 0;
+}
+
+.menu-dropdown button:hover{
+    background: #f6f6f6;
+    transform: none;
+}
+
+.delete-note-btn:hover, .delete-message-btn:hover{
+    color: #d94a4a;
+}
+
 .hidden{
     display: none;
 }
