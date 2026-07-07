@@ -3,6 +3,12 @@ const editName = document.getElementById("editName");
 const editOverlay = document.getElementById("editArea");
 const editMotivation = document.getElementById("editMotivation");
 const saveEditBtn = document.getElementById("saveEditBtn");
+const cancelTextBtn = document.getElementById("cancelTextBtn");
+const saveTextBtn = document.getElementById("saveTextBtn");
+const textModal = document.getElementById("textModal");
+const textModalTitle = document.getElementById("textModalTitle");
+const textModalInput = document.getElementById("textModalInput");
+
 function getGoals(){
     let goals;
     try{
@@ -287,6 +293,26 @@ function closeEditModal(){
     editOverlay.classList.add("hidden");
 }
 
+function closeTextModal(){
+    textModal.classList.add("hidden");
+    textModalInput.value = "";
+    saveTextBtn.onclick = null;
+}
+
+function openTextModal(title, value, onSave){
+    textModalTitle.textContent = title;
+    textModalInput.value = value || "";
+    textModal.classList.remove("hidden");
+    textModalInput.focus();
+    saveTextBtn.onclick = function(){
+        const text = textModalInput.value.trim();
+        if(!text) return;
+        onSave(text);
+        closeTextModal();
+    };
+}
+
+
 function saveGoalEdits(id){
     const goals = getGoals();
     const goal = goals.find(function(g){
@@ -333,6 +359,7 @@ function completeGoal(id, refresh=true){
         goal.completedDates.push(today);
     }
     saveGoals(goals);
+    launchConfetti();
     if(refresh){
         displayGoals();
     }
@@ -345,28 +372,24 @@ function escapeHtml(text){
 }
 
 function addNote(id){
-    const text = prompt("Leave a note:");
-    if(!text)return;
-    const goals = getGoals();
-    const goal = goals.find(g=>g.id===id);
-    if(!goal)return;
-    goal.notes.push({
-        id: Date.now().toString(), text, createdAt: getToday()
+    openTextModal("New Note", "", function(text){
+        const goals = getGoals();
+        const goal = goals.find(g=>g.id===id);
+        if(!goal) return;
+        goal.notes.push({id: Date.now().toString(), text, createdAt: getToday()});
+        saveGoals(goals);
+        openGoal(id);
     });
-    saveGoals(goals);
-    openGoal(id);
 }
 function addMessage(id){
-    const text = prompt("Write your future self a message:");
-    if(!text)return;
-    const goals = getGoals();
-    const goal = goals.find(g=>g.id===id);
-    if(!goal)return;
-    goal.messages.push({
-        id: Date.now().toString(), text, createdAt: getToday()
+    openTextModal("New Message", "", function(text){
+        const goals = getGoals();
+        const goal = goals.find(g=>g.id === id);
+        if(!goal) return;
+        goal.messages.push({id: Date.now().toString(), text, createdAt: getToday()});
+        saveGoals(goals);
+        openGoal(id);
     });
-    saveGoals(goals);
-    openGoal(id);
 }
 document.getElementById("closeOverlay").addEventListener("click", function(){
     document.getElementById("goalOverlay").classList.add("hidden");
@@ -394,12 +417,14 @@ function deleteGoal(id){
 function editNote(goalId, noteId){
     const goals = getGoals();
     const goal = goals.find(g=>g.id===goalId);
+    if(!goal) return;
     const note = goal.notes.find(n=>n.id===noteId);
-    const text = prompt("Edit note:", note.text);
-    if(text === null || !text.trim()) return;
-    note.text = text.trim();
-    saveGoals(goals);
-    openGoal(goalId);
+    if(!note) return;
+    openTextModal("Edit Note", note.text, function(text){
+        note.text = text;
+        saveGoals(goals);
+        openGoal(goalId);
+    });
 }
 
 function deleteNote(goalId, noteId){
@@ -414,13 +439,29 @@ function deleteNote(goalId, noteId){
 function editMessage(goalId, messageId){
     const goals = getGoals();
     const goal = goals.find(g=>g.id===goalId);
+    if(!goal) return;
     const message = goal.messages.find(m=>m.id===messageId);
-    const text = prompt("Edit message:", message.text);
-    if(text === null || !text.trim()) return;
-    message.text = text.trim();
-    saveGoals(goals);
-    openGoal(goalId);
+    if(!message) return;
+    openTextModal("Edit Message", message.text, function(text){
+        message.text = text;
+        saveGoals(goals);
+        openGoal(goal.id);
+    });
 }
+
+textModalInput.addEventListener("keydown", function(event){
+    if(event.key === "Enter" && (event.ctrlKey || event.metaKey)){
+        event.preventDefault();
+        saveTextBtn.click();
+    }
+});
+
+cancelTextBtn.onclick = closeTextModal;
+textModal.onclick = function(event){
+    if(!event.target.closest(".edit-modal")){
+        closeTextModal();
+    }
+};
 
 function deleteMessage(goalId, messageId){
     if(!confirm("Delete this message?")) return;
@@ -436,4 +477,24 @@ document.addEventListener("click", function(){
         menu.classList.add("hidden");
     });
 });
+
+function launchConfetti(){
+    const container = document.getElementById("confetti-container");
+    const colors=["#ff7eb6", "#ffb347", "#ffe066", "#7dd87d", "#6ec6ff", "#b388ff"];
+    for(let i=0; i<80; i++){
+        const piece = document.createElement("div");
+        piece.className = "confetti";
+        piece.style.left = Math.random()*100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+        piece.style.animationDuration = (2+Math.random()*2)+"s";
+        piece.style.transform = `rotate(${Math.random()*360}deg)`;
+        piece.style.width = (6+Math.random()*8)+"px";
+        piece.style.height = (8+Math.random()*10) + "px";
+        container.appendChild(piece);
+        piece.addEventListener("animation", function(){
+            piece.remove();
+        });
+    }
+}
+
 displayGoals();
