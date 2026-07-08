@@ -86,7 +86,8 @@ function addWidgetStuff(){
     document.querySelectorAll(".complete-btn").forEach(function(btn){
         btn.onclick = function(event){
             event.stopPropagation();
-            completeGoal(this.dataset.id);
+            const rec = this.getBoundingClientRect();
+            completeGoal(this.dataset.id, true, rec.left+ rec.width/2, rec.top+ rec.height/2);
         };
     });
 }
@@ -218,7 +219,8 @@ function renderGoal(goal){
 
 function attachGoalEvents(id){
     document.querySelector(".overlay-complete-btn").onclick = function(){
-        completeGoal(id, false);
+        const rec = this.getBoundingClientRect();
+        completeGoal(id, false, rec.left+rec.width/2, rec.top + rec.height/2);
         openGoal(id);
     };
     document.getElementById("addNoteBtn").onclick = function(){
@@ -342,7 +344,7 @@ function getYesterday(){
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function completeGoal(id, refresh=true){
+function completeGoal(id, refresh=true, x=null, y=null){
     const goals = getGoals();
     const today = getToday();
     const goal = goals.find(g=>g.id === id);
@@ -359,7 +361,9 @@ function completeGoal(id, refresh=true){
         goal.completedDates.push(today);
     }
     saveGoals(goals);
-    launchConfetti();
+    if(x!==null){
+        launchConfetti(x,y);
+    }
     if(refresh){
         displayGoals();
     }
@@ -478,22 +482,29 @@ document.addEventListener("click", function(){
     });
 });
 
-function launchConfetti(){
+function launchConfetti(x,y){
     const container = document.getElementById("confetti-container");
     const colors=["#ff7eb6", "#ffb347", "#ffe066", "#7dd87d", "#6ec6ff", "#b388ff"];
     for(let i=0; i<80; i++){
         const piece = document.createElement("div");
+        const size = 6+Math.random()*8;
         piece.className = "confetti";
-        piece.style.left = Math.random()*100 + "vw";
+        piece.style.left = (x+(Math.random()-0.5)*20) + "px";
+        piece.style.top = (y+(Math.random()-0.5)*20) +"px";
+        piece.style.width = size+"px";
+        piece.style.height=size *1.5 +"px";
         piece.style.background = colors[Math.floor(Math.random()*colors.length)];
-        piece.style.animationDuration = (2+Math.random()*2)+"s";
-        piece.style.transform = `rotate(${Math.random()*360}deg)`;
-        piece.style.width = (6+Math.random()*8)+"px";
-        piece.style.height = (8+Math.random()*10) + "px";
+        const angle = Math.random() * Math.PI  * 2;
+        const speed = 350 + Math.random() *300;
+        const dx = Math.cos(angle)*speed;
+        const dy = Math.sin(angle)*speed - 250;
         container.appendChild(piece);
-        piece.addEventListener("animation", function(){
-            piece.remove();
-        });
+        const animation = piece.animate(
+            [
+                {transform: "translate(0,0) rotate(0deg)", opacity:1},
+                {transform: `translate(${dx}px, ${dy+400}px) rotate(${720+Math.random()*360}deg)`, opacity:0}
+            ], {duration: 1800+Math.random()*600, easing: "cubic-bezier(.15, .8,.25,1)", fill:"forwards"});
+        animation.onfinish = () => piece.remove();
     }
 }
 
