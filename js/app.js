@@ -56,6 +56,7 @@ function createGoal(){
 function renderGoalCard(goal){
     return `
         <h3>${goal.emoji || "🌸"} ${goal.name}</h3>
+        <hr class="card-divider">
         <p>${goal.streak} day${goal.streak===1?"":"s"} streak</p>
         <p class="preview-message">${goal.motivation?goal.motivation.slice(0,80)+(goal.motivation.length>80 ? "...":""):"no motivation yet."}</p>
         <button class="complete-btn" data-id="${goal.id}">Complete Today</button>
