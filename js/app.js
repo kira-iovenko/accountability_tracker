@@ -92,6 +92,21 @@ function addWidgetStuff(){
         };
     });
 }
+
+function getGoalStats(goal){
+    const today = new Date();
+    const created = new Date(goal.createdAt);
+    const dif = today - created;
+    const daysSince = Math.max(1, Math.floor(dif / (1000*60*60*24))+1);
+    const totalCompletion = goal.completedDates.length;
+    const rate = Math.round(totalCompletion / daysSince*100);
+    return{
+        daysSince,
+        totalCompletion,
+        rate
+    };
+}
+
 function renderCalendar(goal){
     const now = new Date();
     const year = now.getFullYear();
@@ -133,6 +148,30 @@ function renderStreakCard(goal){
             <span class="streak-label">day${goal.streak ===1?"" : "s"}</span>
         </div>
     `;
+}
+function renderStatsCard(goal){
+    const stats = getGoalStats(goal);
+    return `
+        <div class="stats-card">
+            <h3>My Stats</h3>
+            <div class="stat-row">
+                <span>Current Streak</span>
+                <strong>${goal.streak} day${goal.streak===1?"":"s"}</strong>            
+            </div>
+            <div class="stat-row>
+                <span>Total Completions</span>
+                <strong>${stats.totalCompletion}</strong>
+            </div>
+            <div class="stat-row">
+                <span>Completion Rate</span>
+                <strong>${stats.rate}%</strong>
+            </div>
+            <div class-"stat-row">
+                <span>Days Since Started</span>
+                <strong>${stats.daysSince}</strong>
+            </div>
+        </div>
+    `
 }
 function renderMessagesArea(goal){
     if(!goal.messages.length){
@@ -207,6 +246,8 @@ function renderGoal(goal){
         ${renderGoalHeader(goal)}
         <hr>
         ${renderStreakCard(goal)}
+        <hr>
+        ${renderStatsCard(goal)}
         <hr>
         ${renderCalendar(goal)}
         <hr>

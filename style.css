@@ -440,6 +440,36 @@ button:hover{
     gap: 6px;
 }
 
+.stats-card{
+    margin: 40px 0;
+    padding: 28px;
+    background: var(--paper-light);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.stats-card h3{
+    margin-top: 0;
+    margin-bottom:18px;
+    text-align:center;
+}
+
+.stats-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--line);
+}
+
+.stat-row:last-child{
+    border-bottom: none;
+}
+
+.stat-row strong{
+    color:var(--color-pop);
+}
+
 .hidden{
     display: none;
 }
