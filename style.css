@@ -130,13 +130,7 @@ button:hover{
     border-radius: var(--radius);
     transition: transform var(--transition), border-color var(--transition);
 }
-/* .widget::after{
-    content:"";
-    position: absolute;
-    left: 24px;
-    right: 24px;
-    border-top: 1px dashed var(--line);
-} */
+
 .widget:hover{
     transform: translateY(-2px);
     border-color: var(--line);
@@ -468,6 +462,16 @@ button:hover{
 
 .stat-row strong{
     color:var(--color-pop);
+}
+
+.created-date{
+    text-align: center;
+    color: var(--muted-text);
+    margin-top: -20px;
+    margin-bottom: 31px;
+    font-size: 0.95rem;
+    font-style: italic;
+
 }
 
 .hidden{

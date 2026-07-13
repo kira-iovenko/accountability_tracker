@@ -27,6 +27,7 @@ function getGoals(){
             return typeof message === "string"?{id: Date.now().toString() + Math.random(), text: message, createdAt: goal.createdAt}: message;
         });
         goal.streak??=0;
+        goal.longestStreak??=0;
         goal.lastCompleted??=null;
         goal.createdAt ??= getToday();
     });
@@ -45,7 +46,7 @@ function createGoal(){
     const motivation = document.getElementById("motivation").value;
     const emoji = document.getElementById("goalEmoji").value.trim()|| "🌸";
     const goals = getGoals();
-    goals.push({id: Date.now().toString(), name, emoji, motivation, createdAt: getToday(), streak: 0, lastCompleted: null, completedDates: [],notes:[], messages:[]});
+    goals.push({id: Date.now().toString(), name, emoji, motivation, createdAt: getToday(), streak: 0, longestStreak: 0,lastCompleted: null, completedDates: [],notes:[], messages:[]});
     saveGoals(goals);
     document.getElementById("goalEmoji").value = "";
     document.getElementById("goalName").value="";
@@ -132,13 +133,14 @@ function renderCalendar(goal){
 }
 
 function renderGoalHeader(goal){
+    const formattedDate = new Date(goal.createdAt).toLocaleDateString("en-US", {month: "long", day: "numeric", year: "numeric"});
     return `
         <div class="goal-main">
             <div class="goal-emoji">${goal.emoji || "🌸"}</div>
             <h1 class="goal-name">${goal.name}</h1>
             <p class="goal-motivation">${escapeHtml(goal.motivation)|| "no motivation yet."}</p>
         </div>
-        <p class="created-date">Started on ${goal.createdAt}</p>
+        <p class="created-date">Started ${formattedDate}</p>
     `;
 }
 function renderStreakCard(goal){
@@ -158,7 +160,11 @@ function renderStatsCard(goal){
                 <span>Current Streak</span>
                 <strong>${goal.streak} day${goal.streak===1?"":"s"}</strong>            
             </div>
-            <div class="stat-row>
+            <div class="stat-row">
+                <span>Longest Streak</span>
+                <strong>${goal.longestStreak} day${goal.longestStreak === 1?"":"s"}</strong>
+            </div>
+            <div class="stat-row">
                 <span>Total Completions</span>
                 <strong>${stats.totalCompletion}</strong>
             </div>
@@ -173,6 +179,8 @@ function renderStatsCard(goal){
         </div>
     `
 }
+
+
 function renderMessagesArea(goal){
     if(!goal.messages.length){
         return `
@@ -394,8 +402,12 @@ function completeGoal(id, refresh=true, x=null, y=null){
     if(goal.lastCompleted === today) return;
     if(goal.lastCompleted === getYesterday()){
         goal.streak += 1;
+
     } else {
         goal.streak = 1;
+    }
+    if(goal.streak > goal.longestStreak){
+        goal.longestStreak = goal.streak;
     }
     goal.lastCompleted = today;
     goal.completedDates ??=[];
