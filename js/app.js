@@ -8,6 +8,11 @@ const saveTextBtn = document.getElementById("saveTextBtn");
 const textModal = document.getElementById("textModal");
 const textModalTitle = document.getElementById("textModalTitle");
 const textModalInput = document.getElementById("textModalInput");
+const journalPage = document.getElementById("journalPage");
+const journalEntries = document.getElementById("journalEntries");
+const journalTitle = document.getElementById("journalTitle");
+const journalText = document.getElementById("journalText");
+const saveJournalBtn = document.getElementById("saveJournalBtn");
 
 function getGoals(){
     let goals;
@@ -36,6 +41,17 @@ function getGoals(){
 
 function saveGoals(goals){
     localStorage.setItem("goals", JSON.stringify(goals));
+}
+
+function getJournalEntries(){
+    try{
+        return JSON.parse(localStorage.getItem("journalEntries")) || [];
+    }catch{
+        return[];
+    }
+}
+function saveJournalEntries(entries){
+    localStorage.setItem("journalEntries", JSON.stringify(entries));
 }
 
 document.getElementById("createBtn").addEventListener("click", createGoal);
@@ -83,6 +99,24 @@ function displayGoals(){
     addWidgetStuff();
 }
 
+function displayJournal(){
+    const entries = getJournalEntries();
+    journalEntries.innerHTML = "";
+    if(entries.length === 0){
+        journalEntries.innerHTML = `<p>No entries in your journal yet</p>`;
+        return;
+    }
+    entries.forEach(function(entry){
+        const div = document.createElement("div");
+        div.className = "journal-entry";
+        div.innerHTML = `
+            <h3>${escapeHtml(entry.title)}</h3>
+            <p class="journal-date">${entry.date}</p>
+            <p>${escapeHtml(entry.text)}</p>
+        `;
+        journalEntries.appendChild(div);
+    });
+}
 
 function addWidgetStuff(){
     document.querySelectorAll(".complete-btn").forEach(function(btn){
@@ -172,7 +206,7 @@ function renderStatsCard(goal){
                 <span>Completion Rate</span>
                 <strong>${stats.rate}%</strong>
             </div>
-            <div class-"stat-row">
+            <div class="stat-row">
                 <span>Days Since Started</span>
                 <strong>${stats.daysSince}</strong>
             </div>
@@ -561,5 +595,26 @@ function launchConfetti(x,y){
         animation.onfinish = () => piece.remove();
     }
 }
+
+saveJournalBtn.onclick = function(){
+    const title = journalTitle.value.trim();
+    const text = journalText.value.trim();
+    if(!text) return;
+    const entries = getJournalEntries();
+    entries.unshift({id: Date.now().toString(), title: title||"Untitled", text:text, date:getToday()});
+    saveJournalEntries(entries);
+    journalTitle.value = "";
+    journalText.value = "";
+    displayJournal();
+}
+
+document.getElementById("journalTab").onclick = function(){
+    journalPage.classList.remove("hidden");
+    displayJournal();
+};
+document.getElementById("closeJournal").onclick = function(){
+    journalPage.classList.add("hidden");
+};
+
 
 displayGoals();

@@ -474,6 +474,59 @@ button:hover{
 
 }
 
+.nav-tabs{
+    display: flex;
+    gap: 10px;
+}
+
+.nav-tabs button{
+    background: transparent;
+    color: var(--mutes-text);
+}
+
+.nav-tabs button:hover{
+    background: var(--paper-dark);
+    color: var(--main-text);
+}
+.journal-page{
+    position:fixed;
+    inset: 0;
+    background: var(--paper);
+    overflow-y: auto;
+    z-index: 200;
+}
+.journal-stuff{
+    max-width: 900px;
+    padding: 50px;
+    margin: auto;
+}
+
+.journal-create{
+    background: var(--paper-dark);
+    padding: 30px;
+    border-radius:var(--radius);
+    margin-bottom: 40px;
+    border: 1px solid var(--line);
+}
+
+.journal-entry{
+    background: var(--paper-light);
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    margin-bottom: 20px;
+}
+
+.journal-date{
+    color: var(--muted-text);
+    font-size: 0.9rem;
+}
+
+.journal-entry h3{
+    font-family: "Cormorant Garamond", serif;
+    font-size:1.7rem;
+}
+
 .hidden{
     display: none;
 }
