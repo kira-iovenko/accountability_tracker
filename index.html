@@ -13,12 +13,18 @@
             </div>
             <nav class="nav-tabs"><button id="goalsTab">Goals</button><button id="journalTab">Journal</button></nav>
         </header>
-        <div class="create-box">
-            <h2>New Goal</h2>
-            <input id="goalEmoji" maxlength="2" placeholder="Emoji(s)">
-            <input id="goalName" placeholder="Name">
-            <textarea id="motivation" placeholder="Why are you doing this?"></textarea>
-            <button id="createBtn">Create Goal</button>
+        <button id="openCreateGoal">+ Add Goal</button>
+        <div id="createGoalModal" class=" hidden">
+            <div class="create-box">
+                <h2>New Goal</h2>
+                <input id="goalEmoji" maxlength="2" placeholder="🌸">
+                <input id="goalName" placeholder="Name">
+                <textarea id="motivation" placeholder="Why are you doing this?"></textarea>
+                <div class="edit-buttons">
+                    <button id="createBtn">Create Goal</button>
+                    <button id="cancelCreateBtn">Cancel</button>
+                </div>
+            </div>
         </div>
         <hr class="divider">
         <h2 class="section-title">My Goals</h2>
@@ -33,14 +39,15 @@
     <div id="journalPage" class="journal-page hidden">
         <div class="journal-stuff">
             <button id="closeJournal" class="close-btn">Dashboard</button>
+        
+            <h2>Journal ✧</h2>
+            <div class="journal-create">
+                <input id="journalTitle" placeholder="Entry title">
+                <textarea id="journalText" placeholder="..."></textarea>
+                <button id="saveJournalBtn">Save Entry</button>
+            </div>
+            <div id="journalEntries"></div>
         </div>
-        <h2>Journal ✧</h2>
-        <div class="journal-create">
-            <input id="journalTitle" placeholder="Entry title">
-            <textarea id="journalText" placeholder="..."></textarea>
-            <button id="saveJournalBtn">Save Entry</button>
-        </div>
-        <div id="journalEntries"></div>
     </div>
     <div id="editArea" class="modal-overlay hidden">
         <div class="edit-modal">

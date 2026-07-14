@@ -13,6 +13,17 @@ const journalEntries = document.getElementById("journalEntries");
 const journalTitle = document.getElementById("journalTitle");
 const journalText = document.getElementById("journalText");
 const saveJournalBtn = document.getElementById("saveJournalBtn");
+const createGoalModal = document.getElementById("createGoalModal");
+const openCreateGoal = document.getElementById("openCreateGoal");
+const cancelCreateBtn = document.getElementById("cancelCreateBtn");
+
+openCreateGoal.onclick = function(){
+    createGoalModal.classList.remove("hidden");
+}
+
+cancelCreateBtn.onclick = function(){
+    createGoalModal.classList.add("hidden");
+}
 
 function getGoals(){
     let goals;
@@ -67,17 +78,19 @@ function createGoal(){
     document.getElementById("goalEmoji").value = "";
     document.getElementById("goalName").value="";
     document.getElementById("motivation").value="";
+    createGoalModal.classList.add("hidden");
     displayGoals();
 }
 
 function renderGoalCard(goal){
+    const completedToday = goal.lastCompleted === getToday();
     return `
         <h3>${goal.emoji || "🌸"} ${goal.name}</h3>
         <hr class="card-divider">
         <p>${goal.streak} day${goal.streak===1?"":"s"} streak</p>
         <p class="preview-message">${goal.motivation?goal.motivation.slice(0,80)+(goal.motivation.length>80 ? "...":""):"no motivation yet."}</p>
-        <button class="complete-btn" data-id="${goal.id}">Complete Today</button>
-    `
+        <button class="complete-btn ${completedToday?"completed":""}" data-id="${goal.id}" ${completedToday?"disabled":""}>${completedToday?"✓ Completed":"Complete Today"}</button>
+        `
 }
 
 function displayGoals(){
@@ -273,9 +286,10 @@ function renderNotesArea(goal){
     `;
 }
 
-function renderActions(){
+function renderActions(goal){
+    const completedToday = goal.lastCompleted === getToday();
     return `<div class="goal-actions"><button id="addNoteBtn">+ Add Note</button><button id="addMessageBtn">+ Add Message</button><button id="editGoalBtn">Edit</button></div>
-    <button class="overlay-complete-btn">Complete Today</button>
+    <button class="overlay-complete-btn ${completedToday?"completed":""}" ${completedToday?"disabled":""}>${completedToday?"✓ Completed":"Complete Today"}</button>
     <button id="deleteGoalBtn" class="delete-btn">Delete Goal</button>
     `;
 }
@@ -297,7 +311,7 @@ function renderGoal(goal){
         <hr>
         ${renderNotesArea(goal)}
         <hr>
-        ${renderActions()}
+        ${renderActions(goal)}
     `;
 }
 

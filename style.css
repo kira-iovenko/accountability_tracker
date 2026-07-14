@@ -15,6 +15,7 @@
     --radius-big: 20px;
     --shadow: 0 8px 22px rgba(58, 48, 39, 0.06);
     --transition: .18s ease;
+    --grid: linear-gradient(rgba(255,255,255,0.5)2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,0.5) 2px, transparent 2px);
 }
 *{
     box-sizing: border-box;
@@ -25,7 +26,7 @@ body{
     min-height: 100vh;
     background: var(--paper);
     color: var(--main-text);
-    background-image: linear-gradient(rgba(255, 255, 255, 0.5) 2px, transparent 2px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 2px, transparent 2px);
+    background-image: var(--grid);
     background-size: 48px 48px;
 }
 .topbar{
@@ -494,11 +495,15 @@ button:hover{
     background: var(--paper);
     overflow-y: auto;
     z-index: 200;
+    background-image: var(--grid);
+    background-size: 48px 48px;
 }
 .journal-stuff{
-    max-width: 900px;
-    padding: 50px;
-    margin: auto;
+    max-width: 960px;
+    padding: 40px;
+    margin: 40px auto;
+    border-radius: 18px;
+    background:var(--paper-light);
 }
 
 .journal-create{
@@ -524,7 +529,22 @@ button:hover{
 
 .journal-entry h3{
     font-family: "Cormorant Garamond", serif;
-    font-size:1.7rem;
+    font-size:1.8rem;
+}
+
+.complete-btn.completed, .overlay-complete-btn.completed{
+    background: #b9b9b9;
+    cursor: default;
+}
+
+.complete-btn.completed:hover, .overlay-complete-btn.completed:hover{
+    transform: none;
+    background: #b9b9b9;
+}
+
+.complete-btn:disabled{
+    cursor: default;
+    opacity: 1;
 }
 
 .hidden{
