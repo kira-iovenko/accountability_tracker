@@ -547,6 +547,11 @@ button:hover{
     opacity: 1;
 }
 
+.add-new-btn{
+    margin: 30px auto;
+    display: flex;
+}
+
 .hidden{
     display: none;
 }

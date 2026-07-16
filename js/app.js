@@ -1,3 +1,4 @@
+let editingJournalId = null;
 const editEmoji = document.getElementById("editEmoji");
 const editName = document.getElementById("editName");
 const editOverlay = document.getElementById("editArea");
@@ -16,13 +17,31 @@ const saveJournalBtn = document.getElementById("saveJournalBtn");
 const createGoalModal = document.getElementById("createGoalModal");
 const openCreateGoal = document.getElementById("openCreateGoal");
 const cancelCreateBtn = document.getElementById("cancelCreateBtn");
+const createJournalModal = document.getElementById("createJournalModal");
+const openCreateJournal = document.getElementById("openCreateJournal");
+const cancelJournalBtn = document.getElementById("cancelJournalBtn");
 
 openCreateGoal.onclick = function(){
     createGoalModal.classList.remove("hidden");
+    openCreateGoal.classList.add("hidden");
 }
 
 cancelCreateBtn.onclick = function(){
     createGoalModal.classList.add("hidden");
+    openCreateGoal.classList.remove("hidden");
+}
+
+openCreateJournal.onclick = function(){
+    createJournalModal.classList.remove("hidden");
+    openCreateJournal.classList.add("hidden");
+}
+
+cancelJournalBtn.onclick = function(){
+    editingJournalId = null;
+    journalTitle.value = "";
+    journalText.value = "";
+    createJournalModal.classList.add("hidden");
+    openCreateJournal.classList.remove("hidden");
 }
 
 function getGoals(){
@@ -63,6 +82,8 @@ function getJournalEntries(){
 }
 function saveJournalEntries(entries){
     localStorage.setItem("journalEntries", JSON.stringify(entries));
+    createJournalModal.classList.add("hidden");
+    openCreateJournal.classList.remove("hidden");
 }
 
 document.getElementById("createBtn").addEventListener("click", createGoal);
@@ -79,6 +100,7 @@ function createGoal(){
     document.getElementById("goalName").value="";
     document.getElementById("motivation").value="";
     createGoalModal.classList.add("hidden");
+    openCreateGoal.classList.remove("hidden");
     displayGoals();
 }
 
@@ -123,12 +145,71 @@ function displayJournal(){
         const div = document.createElement("div");
         div.className = "journal-entry";
         div.innerHTML = `
-            <h3>${escapeHtml(entry.title)}</h3>
-            <p class="journal-date">${entry.date}</p>
-            <p>${escapeHtml(entry.text)}</p>
+            <div class="journal-header item-row">
+                <div>
+                    <h3>${escapeHtml(entry.title)}</h3>
+                    <p class="journal-date">${entry.date}</p>
+                </div>
+                <div class="more-actions-menu">
+                    <button class="menu-btn" data-type="journal" data-id="${entry.id}">⋮</button>
+                    <div class="menu-dropdown hidden">
+                        <button class="edit-journal-btn" data-id="${entry.id}">Edit</button>
+                        <button class="delete-journal-btn" data-id="${entry.id}">Delete</button>
+                    </div>
+                </div>
+            </div>
+          <p>${escapeHtml(entry.text)}</p>
         `;
         journalEntries.appendChild(div);
     });
+    attachJournalEvents();
+}
+
+function attachJournalEvents(){
+    document.querySelectorAll(".edit-journal-btn").forEach(function(btn){
+        btn.onclick = function(){
+            editJournalEntry(this.dataset.id);
+        };
+    });
+    document.querySelectorAll(".delete-journal-btn").forEach(function(btn){
+        btn.onclick = function(){
+            deleteJournalEntry(this.dataset.id);
+        };
+    });
+    document.querySelectorAll(".menu-btn").forEach(function(btn){
+        if(btn.dataset.type !== "journal") return;
+        btn.onclick = function(entry){
+            event.stopPropagation();
+            document.querySelectorAll(".menu-dropdown").forEach(function(menu){
+                if(menu!==btn.nextElementSibling){
+                    menu.classList.add("hidden");
+                }
+            });
+            btn.nextElementSibling.classList.toggle("hidden");
+        };
+    });
+}
+
+function editJournalEntry(id){
+    const entries = getJournalEntries();
+    const entry = entries.find(function(e){
+        return e.id === id;
+    });
+    if(!entry) return;
+    editingJournalId = id;
+    journalTitle.value = entry.title;
+    journalText.value = entry.text;
+    createJournalModal.classList.remove("hidden");
+    openCreateJournal.classList.add("hidden");
+}
+
+function deleteJournalEntry(id){
+    if(!confirm("Delete this entry?")) return;
+    const entries = getJournalEntries().filter(function(entry){
+        return entry.id !== id;
+    });
+    saveJournalEntries(entries);
+    displayJournal();
 }
 
 function addWidgetStuff(){
@@ -226,7 +307,6 @@ function renderStatsCard(goal){
         </div>
     `
 }
-
 
 function renderMessagesArea(goal){
     if(!goal.messages.length){
@@ -611,16 +691,29 @@ function launchConfetti(x,y){
 }
 
 saveJournalBtn.onclick = function(){
-    const title = journalTitle.value.trim();
+    const title = journalTitle.value.trim() || "Untitled";
     const text = journalText.value.trim();
     if(!text) return;
     const entries = getJournalEntries();
-    entries.unshift({id: Date.now().toString(), title: title||"Untitled", text:text, date:getToday()});
+    if(editingJournalId){
+        const entry = entries.find(function(e){
+            return e.id === editingJournalId;
+        });
+        if(entry){
+            entry.title = title;
+            entry.text = text;
+        }
+        editingJournalId = null;
+    } else{
+        entries.unshift({id: Date.now().toString(), title, text, date: getToday()});
+    }
     saveJournalEntries(entries);
     journalTitle.value = "";
     journalText.value = "";
+    createJournalModal.classList.add("hidden");
+    openCreateJournal.classList.remove("hidden");
     displayJournal();
-}
+};
 
 document.getElementById("journalTab").onclick = function(){
     journalPage.classList.remove("hidden");
