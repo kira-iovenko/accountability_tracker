@@ -325,6 +325,15 @@ button:hover{
     align-items: center;
 }
 
+.modal-stuff{
+    background: var(--paper-light);
+    width: min(700px, 90vw);
+    border: 1px solid var(--line);
+    padding: 30px;
+    border-radius: var(--radius);
+    overflow-y: auto;
+}
+
 .more-actions-menu{
     position: relative;
 }
@@ -457,11 +466,11 @@ button:hover{
     border-bottom: 1px dashed var(--line);
 }
 
-.stat-row:last-child{
+.stats-row:last-child{
     border-bottom: none;
 }
 
-.stat-row strong{
+.stats-row strong{
     color:var(--color-pop);
 }
 
@@ -482,7 +491,7 @@ button:hover{
 
 .nav-tabs button{
     background: transparent;
-    color: var(--mutes-text);
+    color: var(--muted-text);
 }
 
 .nav-tabs button:hover{
@@ -550,6 +559,23 @@ button:hover{
 .add-new-btn{
     margin: 30px auto;
     display: flex;
+}
+
+.journal-preview{
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.6;
+    margin-top: 12px;
+}
+
+#journalViewText{
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.7;
 }
 
 .hidden{

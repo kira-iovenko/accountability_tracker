@@ -20,6 +20,11 @@ const cancelCreateBtn = document.getElementById("cancelCreateBtn");
 const createJournalModal = document.getElementById("createJournalModal");
 const openCreateJournal = document.getElementById("openCreateJournal");
 const cancelJournalBtn = document.getElementById("cancelJournalBtn");
+const journalViewModal = document.getElementById("journalViewModal");
+const journalViewTitle = document.getElementById("journalViewTitle");
+const journalViewDate = document.getElementById("journalViewDate");
+const journalViewText = document.getElementById("journalViewText");
+const closeJournalView = document.getElementById("closeJournalView");
 
 openCreateGoal.onclick = function(){
     createGoalModal.classList.remove("hidden");
@@ -134,6 +139,22 @@ function displayGoals(){
     addWidgetStuff();
 }
 
+function openJournalEntry(id){
+    const entries = getJournalEntries();
+    const entry = entries.find(function(e){
+        return e.id === id;
+    });
+    if(!entry) return;
+    journalViewTitle.textContent = entry.title;
+    journalViewDate.textContent = entry.date;
+    journalViewText.textContent = entry.text;
+    journalViewModal.classList.remove("hidden");
+}
+
+closeJournalView.onclick = function(){
+    journalViewModal.classList.add("hidden");
+}
+
 function displayJournal(){
     const entries = getJournalEntries();
     journalEntries.innerHTML = "";
@@ -143,6 +164,7 @@ function displayJournal(){
     }
     entries.forEach(function(entry){
         const div = document.createElement("div");
+        const preview = entry.text.length > 180 ? entry.text.slice(0,180) + "...": entry.text;
         div.className = "journal-entry";
         div.innerHTML = `
             <div class="journal-header item-row">
@@ -158,9 +180,15 @@ function displayJournal(){
                     </div>
                 </div>
             </div>
-          <p>${escapeHtml(entry.text)}</p>
+            <p class="journal-preview">${escapeHtml(preview)}</p>
         `;
         journalEntries.appendChild(div);
+        div.addEventListener("click", function(event){
+            if(event.target.closest(".more-actions-menu")){
+                return;
+            }
+            openJournalEntry(entry.id);
+        });
     });
     attachJournalEvents();
 }
@@ -178,7 +206,7 @@ function attachJournalEvents(){
     });
     document.querySelectorAll(".menu-btn").forEach(function(btn){
         if(btn.dataset.type !== "journal") return;
-        btn.onclick = function(entry){
+        btn.onclick = function(event){
             event.stopPropagation();
             document.querySelectorAll(".menu-dropdown").forEach(function(menu){
                 if(menu!==btn.nextElementSibling){
