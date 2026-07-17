@@ -529,6 +529,7 @@ button:hover{
     border-radius: var(--radius);
     border: 1px solid var(--line);
     margin-bottom: 20px;
+    overflow: hidden;
 }
 
 .journal-date{
@@ -561,14 +562,18 @@ button:hover{
     display: flex;
 }
 
-.journal-preview{
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+ .journal-preview{
     line-height: 1.6;
     margin-top: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    display: box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 #journalViewText{
