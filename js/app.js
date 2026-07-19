@@ -25,6 +25,9 @@ const journalViewTitle = document.getElementById("journalViewTitle");
 const journalViewDate = document.getElementById("journalViewDate");
 const journalViewText = document.getElementById("journalViewText");
 const closeJournalView = document.getElementById("closeJournalView");
+let currentGoalId = null;
+let calendarMonth = new Date().getMonth();
+let calendarYear = new Date().getFullYear();
 
 openCreateGoal.onclick = function(){
     createGoalModal.classList.remove("hidden");
@@ -265,12 +268,18 @@ function getGoalStats(goal){
 }
 
 function renderCalendar(goal){
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const firstD = new Date(year, month, 1);
-    const monthDays = new Date(year, month+1, 0).getDate();
-    let html = `<div class="calendar"><h3>${now.toLocaleString("default",{month: "long"})} ${year}</h3><div class="calendar-grid">`;
+    const firstD = new Date(calendarYear, calendarMonth, 1);
+    const monthDays = new Date(calendarYear, calendarMonth+1, 0).getDate();
+    const monthName = firstD.toLocaleString("default", {month: "long"});
+    let html = `
+        <div class="calendar">
+            <div class="calendar-header">
+                <button id="prevMonthBtn">◀</button>
+                <h3>${monthName} ${calendarYear}</h3>
+                <button id="nextMonthBtn" ${isCurrentMonth()?"disabled":""}>▶</button>
+            </div>
+            <div class="calendar-grid">
+    `;
     const weekDays = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
     weekDays.forEach(function(day){
         html += `<div class="calendar-head">${day}</div>`;
@@ -279,12 +288,17 @@ function renderCalendar(goal){
     for(let i=0; i<startDay; i++){
         html +=`<div></div>`;
     }
-    for(let d=1; d<=monthDays;d++){
-        const str = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-        const complete = (goal.completedDates || []).includes(str);
-        html += `<div class="calendar-day ${complete?"completed":""}">${d}</div>`;
+    const today = getToday();
+    for(let d = 1; d<=monthDays; d++){
+        const dateString = `${calendarYear}-${String(calendarMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+        const completed = goal.completedDates.includes(dateString);
+        const isToday = dateString === today;
+        html += `<div class="calendar-day ${completed?"completed":""} ${isToday ? "today": ""}">${d}</div>`;
     }
-    html += `</div></div>`;
+    html += `
+            </div>
+        </div>
+    `;
     return html;
 }
 
@@ -427,7 +441,7 @@ function attachGoalEvents(id){
     document.querySelector(".overlay-complete-btn").onclick = function(){
         const rec = this.getBoundingClientRect();
         completeGoal(id, false, rec.left+rec.width/2, rec.top + rec.height/2);
-        openGoal(id);
+        renderCurrentGoal();
     };
     document.getElementById("addNoteBtn").onclick = function(){
         addNote(id);
@@ -475,17 +489,48 @@ function attachGoalEvents(id){
             btn.nextElementSibling.classList.toggle("hidden");
         };
     });
+    document.getElementById("prevMonthBtn").onclick = function(){
+        calendarMonth--;
+        if(calendarMonth<0){
+            calendarMonth = 11;
+            calendarYear--;
+        }
+        renderCurrentGoal();
+    };
+    document.getElementById("nextMonthBtn").onclick = function(){
+        const today = new Date();
+        if(
+            calendarYear === today.getFullYear() && calendarMonth === today.getMonth()
+        ){
+            return;
+        }
+        calendarMonth++;
+        if(calendarMonth>11){
+            calendarMonth = 0;
+            calendarYear++;
+        }
+        renderCurrentGoal();
+    };
 }
 
+
 function openGoal(id){
+    currentGoalId = id;
+    calendarMonth = new Date().getMonth();
+    calendarYear = new Date().getFullYear();
+    renderCurrentGoal();
+    document.getElementById("goalOverlay").classList.remove("hidden");
+}
+
+function renderCurrentGoal(){
     const goals = getGoals();
-    const goal = goals.find(g=>g.id===id);
+    const goal = goals.find(function(g){
+        return g.id === currentGoalId;
+    });
     if(!goal) return;
-    const overlay = document.getElementById("goalOverlay");
     const content = document.getElementById("goalContent");
     content.innerHTML = renderGoal(goal);
     attachGoalEvents(goal.id);
-    overlay.classList.remove("hidden");
 }
 
 function openEditModal(goal){
@@ -548,6 +593,13 @@ function getYesterday(){
     const d = new Date();
     d.setDate(d.getDate()-1);
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function isCurrentMonth(){
+    const now = new Date();
+    return(
+        calendarMonth === now.getMonth() && calendarYear === now.getFullYear()
+    );
 }
 
 function completeGoal(id, refresh=true, x=null, y=null){
@@ -637,7 +689,7 @@ function editNote(goalId, noteId){
     openTextModal("Edit Note", note.text, function(text){
         note.text = text;
         saveGoals(goals);
-        openGoal(goalId);
+        renderCurrentGoal();
     });
 }
 
@@ -647,7 +699,7 @@ function deleteNote(goalId, noteId){
     const goal = goals.find(g=>g.id===goalId);
     goal.notes = goal.notes.filter(n=>n.id !== noteId);
     saveGoals(goals);
-    openGoal(goalId); 
+    renderCurrentGoal();
 }
 
 function editMessage(goalId, messageId){
@@ -683,7 +735,7 @@ function deleteMessage(goalId, messageId){
     const goal = goals.find(g=>g.id === goalId);
     goal.messages = goal.messages.filter(m=>m.id!==messageId);
     saveGoals(goals);
-    openGoal(goalId);
+    renderCurrentGoal();
 }
 
 document.addEventListener("click", function(){

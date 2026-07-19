@@ -219,6 +219,25 @@ button:hover{
      background: var(--color-pop);
      color: white;
 }
+
+.calendar-header{
+    display: flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+}
+.calenar-day.today{
+    outline: 1px solid var(--line);
+    outline-offset: -2px;
+}
+
+.calendar-header button{
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 25px;
+    color: var(--color-pop);
+}
 .overlay-complete-btn{
     width: 100%;
     margin-top: 16px;
@@ -581,6 +600,10 @@ button:hover{
     overflow-wrap: break-word;
     word-break: break-word;
     line-height: 1.7;
+}
+.calendar-header button:disabled{
+    opacity: 0.35;
+    cursor: not-allowed;
 }
 
 .hidden{
