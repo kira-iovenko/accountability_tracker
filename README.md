@@ -24,15 +24,18 @@ https://kira-iovenko.github.io/accountability_tracker/
 - Edit and/or delete entries
 - Preview entries 
 
-###UI
+### UI
 - Confetti animation upon goal completion
 - Responsive card layout
 - Dashboard view
 - Goal detail overlay
 - Clean pastel aesthetic
 
-##Made using
+## Made using
 - HTML
 - CSS
 - Vanilla JavaScript
 - Local Storage API
+
+## Author
+Made with ❤️ by [@kira-iovenko](https://github.com/kira-iovenko)
