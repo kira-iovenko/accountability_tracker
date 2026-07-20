@@ -606,6 +606,30 @@ button:hover{
     cursor: not-allowed;
 }
 
+.calendar{
+    animation: calendarFade 0.2s ease;
+}
+
+.goal-topbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+@keyframes calendarFade{
+    from{
+        opacity: 0;
+        transform: translateX(17px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+
+
 .hidden{
     display: none;
 }

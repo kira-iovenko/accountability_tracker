@@ -11,7 +11,7 @@
             <div>
                 <h1>Bloom ⋆˙⟡</h1>
             </div>
-            <nav class="nav-tabs"><button id="goalsTab">Goals</button><button id="journalTab">Journal</button></nav>
+            <nav class="nav-tabs"><button id="journalTab">Journal</button></nav>
         </header>
         <button id="openCreateGoal" class="add-new-btn">+ Add Goal</button>
         <div id="createGoalModal" class=" hidden">
@@ -31,15 +31,20 @@
         <div id="goalContainer"></div>
         <div id="goalOverlay" class="goal-page hidden">
             <div class="goal-page-content">
-                <button id="closeOverlay" class="close-btn">Dashboard</button>
+                <div class="goal-topbar">
+                    <button id="closeOverlay" class="close-btn">Dashboard</button>
+                    <button id="editGoalBtn">Edit</button>
+                </div>
                 <div id="goalContent"></div>
             </div>
         </div>
     </div>
     <div id="journalPage" class="journal-page hidden">
         <div class="journal-stuff">
-            <button id="closeJournal" class="close-btn">Dashboard</button>
-            <h2>Journal ✧</h2>
+            <div class="topbar">
+                <h2>Journal ✧</h2>
+                <button id="closeJournal" class="close-btn">Dashboard</button>
+            </div>
             <button id="openCreateJournal" class="add-new-btn">+ Add Entry</button>
             <div id="createJournalModal" class="hidden">
                 <div class="journal-create">

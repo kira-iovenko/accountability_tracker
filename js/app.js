@@ -410,7 +410,7 @@ function renderNotesArea(goal){
 
 function renderActions(goal){
     const completedToday = goal.lastCompleted === getToday();
-    return `<div class="goal-actions"><button id="addNoteBtn">+ Add Note</button><button id="addMessageBtn">+ Add Message</button><button id="editGoalBtn">Edit</button></div>
+    return `<div class="goal-actions"><button id="addNoteBtn">+ Add Note</button><button id="addMessageBtn">+ Add Message</button></div>
     <button class="overlay-complete-btn ${completedToday?"completed":""}" ${completedToday?"disabled":""}>${completedToday?"✓ Completed":"Complete Today"}</button>
     <button id="deleteGoalBtn" class="delete-btn">Delete Goal</button>
     `;
